@@ -20,8 +20,8 @@ A Kisalu Express é uma aplicação móvel que liga clientes a prestadores de se
 
 | Nome completo | N.º de estudante | Curso | Ano curricular | Contacto institucional |
 |---|---|---|---|---|
-| Álvaro da Silva | 20252049 | Licenciatura em Engenharia Informática | 2.º ano | _(a preencher)_ |
-| Adilson Yango | 20252312 | Licenciatura em Engenharia Informática | 2.º ano | _(a preencher)_ |
-| Milton Malavo | 20252099 | Licenciatura em Engenharia Informática | 2.º ano | _(a preencher)_ |
+| Álvaro da Silva | 20252049 | Licenciatura em Engenharia Informática | 2.º ano | 20252049@iade.pt |
+| Adilson Yango | 20252312 | Licenciatura em Engenharia Informática | 2.º ano | 20252312@iade.pt |
+| Milton Malavo | 20252099 | Licenciatura em Engenharia Informática | 2.º ano | 20252099@iade.pt |
 
 **Repositório:** <https://github.com/Eng-Infomatica-IADE/Kisalu-Express>
