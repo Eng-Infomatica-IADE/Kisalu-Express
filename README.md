@@ -18,7 +18,7 @@
 · [Memória descritiva](Kisalu_Express/01_Memoria_Descritiva/memoria.md)
 · [Imagens](Kisalu_Express/02_Imagens/legendas.md)
 
-**Gestão do projeto:** GitHub Projects (separador *Projects* deste repositório)
+**Gestão do projeto:** [GitHub Projects – Kisalu Express](https://github.com/orgs/Eng-Infomatica-IADE/projects/1)
 
 **Protótipo:** [Figma – Kisalu Express Mockups (G05)](https://www.figma.com/design/y6x5pO2mwQpoiF5ep18mSl/Kisalu-Express-%E2%80%94-Mockups--G05-?node-id=1-2&t=GXQBKLtBISj0Al7r-1)
 
