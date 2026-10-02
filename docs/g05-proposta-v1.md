@@ -19,6 +19,7 @@
 | **Elementos** | Álvaro da Silva – 20252049<br>Adilson Yango – 20252312<br>Milton Malavo – 20252099 |
 | **Projeto** | Kisalu Express |
 | **Repositório GitHub** | <https://github.com/Eng-Infomatica-IADE/Kisalu-Express> |
+| **Figma** | [Kisalu Express — Mockups (G05)](https://www.figma.com/design/y6x5pO2mwQpoiF5ep18mSl/Kisalu-Express-%E2%80%94-Mockups--G05-?node-id=1-2&t=GXQBKLtBISj0Al7r-1) |
 | **Data** | 2 de outubro de 2026 |
 
 ## 2. Palavras-chave

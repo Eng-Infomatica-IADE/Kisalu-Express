@@ -22,6 +22,8 @@ Marketplace móvel que liga clientes a prestadores de serviços informais (bisca
 
 ## Mockups
 
+Protótipo no Figma: [Kisalu Express — Mockups (G05)](https://www.figma.com/design/y6x5pO2mwQpoiF5ep18mSl/Kisalu-Express-%E2%80%94-Mockups--G05-?node-id=1-2&t=GXQBKLtBISj0Al7r-1)
+
 ![Mockups Kisalu Express](docs/img/mockups-figma.png)
 
 ## Tecnologias
