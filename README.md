@@ -9,9 +9,10 @@
 | Documento | Markdown | PDF |
 |---|---|---|
 | Proposta inicial (1.ª entrega) | [g05-proposta-v1.md](Documentos/g05-proposta-v1.md) | [g05-proposta-v1.pdf](Documentos/g05-proposta-v1.pdf) |
-| Segunda proposta | – | – |
+| Segunda proposta (2.ª entrega) | [g05-proposta-v2.md](Documentos/g05-proposta-v2.md) | [g05-proposta-v2.pdf](Documentos/g05-proposta-v2.pdf) |
 | Relatório intermédio (2.ª entrega) | – | – |
 | Relatório final (3.ª entrega) | – | – |
+| Mobile App Style Guide | – | [g05-mobile-style-guide.pdf](Documentos/g05-mobile-style-guide.pdf) |
 
 **Memória e arquivo documental:** [Kisalu_Express/](Kisalu_Express)
 · [Identificação (info.md)](Kisalu_Express/00_Identificacao/info.md)
@@ -20,7 +21,7 @@
 
 **Gestão do projeto:** [GitHub Projects – Kisalu Express](https://github.com/orgs/Eng-Infomatica-IADE/projects/1)
 
-**Protótipo:** [Figma – Kisalu Express Mockups (G05)](https://www.figma.com/design/y6x5pO2mwQpoiF5ep18mSl/Kisalu-Express-%E2%80%94-Mockups--G05-?node-id=1-2&t=GXQBKLtBISj0Al7r-1)
+**Protótipo:** [Figma – Kisalu Express Mockups v2](https://www.figma.com/design/y6x5pO2mwQpoiF5ep18mSl/Kisalu-Express-%E2%80%94-Mockups--G05-?node-id=33-2)
 
 ## Sobre o projeto
 
@@ -36,7 +37,7 @@ Marketplace móvel que liga clientes a prestadores de serviços informais (bisca
 
 ## Mockups
 
-![Mockups Kisalu Express](Documentos/img/mockups-figma.png)
+![Mockups Kisalu Express v2](Documentos/img/mockups-v2.png)
 
 ## Tecnologias
 
