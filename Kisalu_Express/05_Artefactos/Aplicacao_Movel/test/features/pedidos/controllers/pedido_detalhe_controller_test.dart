@@ -5,7 +5,9 @@ import 'package:kisalu_express/data/repositories/mock_kisalu_repository.dart';
 import 'package:kisalu_express/features/pedidos/controllers/confirmar_proposta_controller.dart';
 import 'package:kisalu_express/features/pedidos/controllers/pedido_detalhe_controller.dart';
 import 'package:kisalu_express/models/estado_pedido.dart';
+import 'package:kisalu_express/models/estimativa_chegada.dart';
 import 'package:kisalu_express/models/ordenacao_propostas.dart';
+import 'package:kisalu_express/models/proposta.dart';
 
 void main() {
   setUpAll(() => GoogleFonts.config.allowRuntimeFetching = false);
@@ -66,5 +68,38 @@ void main() {
     await c.carregar();
     expect(await c.cancelar(), isNull);
     expect(await c.cancelar(), 'Já não é possível cancelar este pedido.');
+  });
+
+  test('as propostas trazem a estimativa de chegada (Monte Carlo)', () async {
+    final c = PedidoDetalheController(MockKisaluRepository(), 'ped1');
+    await c.carregar();
+    final pr3 = c.propostas.firstWhere((p) => p.id == 'pr3');
+    expect(pr3.estimativaChegada!.simulacoes, 10000);
+    expect(pr3.estimativaChegada!.percentagemCumprir, 60); // 0,576 → ~60 %
+  });
+
+  test('"Chegada" desempata pela mediana simulada (p50)', () async {
+    final c = PedidoDetalheController(MockKisaluRepository(), 'ped1');
+    await c.carregar();
+    final base = c.propostas.first;
+    Proposta com(String id, double p50) => Proposta(
+      id: id,
+      profissional: base.profissional,
+      valor: base.valor,
+      inclui: base.inclui,
+      chegadaPrevista: base.chegadaPrevista,
+      estimativaChegada: EstimativaChegada(
+        simulacoes: 10000,
+        mediaMin: p50,
+        p50Min: p50,
+        p90Min: p50 * 2,
+        probCumprir: 0.9,
+      ),
+    );
+    final ordenadas = OrdenacaoPropostas.chegada.ordenar([
+      com('lenta', 30),
+      com('rapida', 12),
+    ]);
+    expect(ordenadas.map((p) => p.id), ['rapida', 'lenta']);
   });
 }

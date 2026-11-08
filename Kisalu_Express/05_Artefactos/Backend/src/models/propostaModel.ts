@@ -63,3 +63,21 @@ export async function autoresDoPedido(pedidoId: number, db: Db = pool): Promise<
   const rows = await query<{ profissional_id: number }>(`SELECT profissional_id FROM proposta WHERE pedido_id = ?`, [pedidoId], db);
   return rows.map((r) => r.profissional_id);
 }
+
+/** Dados para simular a chegada: quem pode ver, minutos prometidos e as duas pontas da viagem */
+export async function paraEstimativa(propostaId: number, db: Db = pool) {
+  return queryOne<{
+    id: number; profissional_id: number; cliente_id: number; tempo_chegada_min: number | null; na_hora_pedida: number;
+    p_lat: number | null; p_lng: number | null; m_lat: number | null; m_lng: number | null;
+  }>(
+    `SELECT pr.id, pr.profissional_id, pe.cliente_id, pr.tempo_chegada_min, pr.na_hora_pedida,
+            p.latitude AS p_lat, p.longitude AS p_lng, m.latitude AS m_lat, m.longitude AS m_lng
+       FROM proposta pr
+       JOIN pedido pe ON pe.id = pr.pedido_id
+       JOIN morada m ON m.id = pe.morada_id
+       JOIN profissional p ON p.utilizador_id = pr.profissional_id
+      WHERE pr.id = ?`,
+    [propostaId],
+    db,
+  );
+}

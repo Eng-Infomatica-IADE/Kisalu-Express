@@ -1403,4 +1403,47 @@ void main() {
       expect(c.valor, isNull);
     });
   });
+
+  group('Matemática (estatística e Monte Carlo)', () {
+    test(
+      'estatisticasAvaliacoes lê GET /profissionais/:id/estatisticas',
+      () async {
+        servidor.em('GET /profissionais/2/estatisticas', {
+          'n': 126,
+          'media': 4.79,
+          'mediana': 5,
+          'moda': 5,
+          'desvio_padrao': 0.6,
+          'variancia': 0.357,
+          'ic95': {'inferior': 4.69, 'superior': 4.9, 'metodo': 'z'},
+          'distribuicao': {'1': 1, '2': 1, '3': 3, '4': 13, '5': 108},
+          'media_bayesiana': 4.79,
+        });
+        final e = (await repo.estatisticasAvaliacoes('2'))!;
+        expect(e.n, 126);
+        expect(e.desvioPadrao, 0.6);
+        expect(e.ic95!.metodo, 'z');
+        expect(e.distribuicao[5], 108);
+        expect(e.maiorContagem, 108);
+        expect(await repo.estatisticasAvaliacoes('999'), isNull); // 404
+      },
+    );
+
+    test('PropostaJSON com e sem estimativa_chegada', () {
+      final com = Proposta.fromJson({
+        ..._proposta,
+        'estimativa_chegada': {
+          'simulacoes': 10000,
+          'media_min': 19,
+          'p50_min': 16.6,
+          'p90_min': 32.8,
+          'prob_cumprir': 0.84,
+        },
+      });
+      expect(com.estimativaChegada!.p50Min, 16.6);
+      expect(com.estimativaChegada!.percentagemCumprir, 85);
+      final sem = Proposta.fromJson({..._proposta, 'estimativa_chegada': null});
+      expect(sem.estimativaChegada, isNull);
+    });
+  });
 }

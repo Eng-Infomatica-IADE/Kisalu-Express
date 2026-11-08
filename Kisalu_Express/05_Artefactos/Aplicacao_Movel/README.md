@@ -77,7 +77,7 @@ Utilizadores de exemplo (dados fictícios da API):
 
 O SMS não é enviado: o código aparece no terminal onde corre a API. Em modo debug, a app recebe-o na resposta e o ecrã 11 já abre preenchido. No ecrã 16, o código do cliente de exemplo é `482173`.
 
-A sessão fica guardada no aparelho (`flutter_secure_storage`; no Chrome, cifrada pelo próprio pacote): ao abrir a app outra vez, se o token ainda for aceite, entra direto no Início do perfil ativo. "Terminar sessão" apaga-o. Se a API responder 401 (sessão expirada), a app volta ao Login. O rascunho do novo pedido também fica guardado (`shared_preferences`) até ser publicado. A forma de cada pedido e resposta está em [`docs/CONTRATO-API.md`](../docs/CONTRATO-API.md).
+A sessão fica guardada no aparelho (`flutter_secure_storage`; no Chrome, cifrada pelo próprio pacote): ao abrir a app outra vez, se o token ainda for aceite, entra direto no Início do perfil ativo. "Terminar sessão" apaga-o. Se a API responder 401 (sessão expirada), a app volta ao Login. O rascunho do novo pedido também fica guardado (`shared_preferences`) até ser publicado. A forma de cada pedido e resposta está em [`docs/CONTRATO-API.md`](https://github.com/Eng-Infomatica-IADE/kissalu-app/blob/main/docs/CONTRATO-API.md).
 
 ## Funcionalidades simuladas
 Sem `KISALU_API` não há base de dados, API nem armazenamento persistente. Os dados são objetos Dart em `lib/data/mock/`, servidos por `MockKisaluRepository`, e reiniciam ao fechar a app.

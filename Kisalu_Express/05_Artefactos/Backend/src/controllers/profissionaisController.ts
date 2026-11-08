@@ -13,6 +13,7 @@ import { idsDeCategorias } from '../services/categorias';
 import {
   nomeCurto, pedidosPerto, Ponto, pontoDoUtilizador, primeiroNome, resumosProfissionais, semCoordenadas,
 } from '../services/formatos';
+import { estatisticasAvaliacoes } from '../services/estatistica';
 import * as Profissional from '../models/profissionalModel';
 
 const EXPLICACAO_VERIFICADO =
@@ -290,4 +291,11 @@ export async function perfil(req: Request, res: Response) {
 export async function listarAvaliacoes(req: Request, res: Response) {
   const { limit, offset } = req.valid.query;
   res.json(await avaliacoesDe(req.valid.params.id, limit, offset));
+}
+
+/** Estatística das avaliações (ecrã 03, "Avaliações em números"). Ver docs/MATEMATICA.md. */
+export async function estatisticas(req: Request, res: Response) {
+  const r = await Profissional.distribuicaoAvaliacoes(req.valid.params.id);
+  if (!r) throw notFound('Profissional');
+  res.json(estatisticasAvaliacoes(r.distribuicao, r.mediaCategoria));
 }

@@ -2,6 +2,7 @@
  * Formas JSON combinadas com a app Flutter (docs/CONTRATO-APP.md, secção 1).
  * Regras: ids inteiros, valores em Kz inteiros, booleanos true/false, datas ISO em UTC.
  */
+import { estimativaDaProposta } from './monteCarlo';
 import { Db, pool, query, queryOne } from '../config/db';
 import { distanciaKm } from '../utils/geo';
 
@@ -126,7 +127,13 @@ export function chegadaPrevista(pr: any, dataPretendida: Date | string | null): 
   return somarMinutos(new Date(), pr.tempo_chegada_min);
 }
 
-export function propostaJSON(pr: any, dataPretendida: Date | string | null, profissional: unknown) {
+/**
+ * PropostaJSON. Com `comEstimativa` (o cliente do pedido), junta `estimativa_chegada`: a simulação
+ * de Monte Carlo da chegada (services/monteCarlo.ts) com a distância profissional ↔ morada e os
+ * minutos prometidos. null quando não é para o cliente ou faltam dados.
+ */
+export function propostaJSON(pr: any, dataPretendida: Date | string | null, profissional: unknown, comEstimativa = false) {
+  const distancia = (profissional as { distancia_km?: number | null } | null)?.distancia_km;
   return {
     id: pr.id,
     proposta_id: pr.id,
@@ -143,6 +150,7 @@ export function propostaJSON(pr: any, dataPretendida: Date | string | null, prof
     tempo_chegada_min: pr.tempo_chegada_min,
     na_hora_pedida: !!pr.na_hora_pedida,
     chegada_prevista: chegadaPrevista(pr, dataPretendida),
+    estimativa_chegada: comEstimativa ? estimativaDaProposta(pr.id, distancia, pr.na_hora_pedida ? null : pr.tempo_chegada_min) : null,
     profissional,
   };
 }
@@ -240,7 +248,7 @@ export async function pedidosJSON(ids: number[], leitor: Leitor, opcoes: { propo
         pode_reclamar: podeReclamar(r),
         propostas: propostas
           .filter((p) => p.pedido_id === id)
-          .map((p) => propostaJSON(p, r.data_pretendida, semCoordenadas(doPedido.get(p.profissional_id)))),
+          .map((p) => propostaJSON(p, r.data_pretendida, semCoordenadas(doPedido.get(p.profissional_id)), r.cliente_id === leitor.id)),
       };
     });
 }

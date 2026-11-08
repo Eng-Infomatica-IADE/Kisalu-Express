@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/k_colors.dart';
+import '../../../core/theme/k_icons.dart';
 import '../../../core/theme/k_tokens.dart';
 import '../../../core/theme/k_typography.dart';
 import '../../../core/utils/k_format.dart';
@@ -90,6 +92,10 @@ class PedidoDetalhePropostaCartao extends StatelessWidget {
               ),
             ],
           ),
+          if (proposta.estimativaChegada case final e?) ...[
+            const SizedBox(height: K.s4),
+            _LinhaChegaATempo(percentagem: e.percentagemCumprir),
+          ],
           const SizedBox(height: K.s8),
           KIncluiBox(
             texto: KFormat.inclui(proposta.inclui),
@@ -103,6 +109,34 @@ class PedidoDetalhePropostaCartao extends StatelessWidget {
           ],
         ],
       ),
+    );
+  }
+}
+
+/// "Chega a tempo em ~85% dos casos" (simulação de Monte Carlo). Cor + ícone
+/// + texto: verde a partir de 80 %, aviso abaixo disso.
+class _LinhaChegaATempo extends StatelessWidget {
+  const _LinhaChegaATempo({required this.percentagem});
+
+  final int percentagem;
+
+  static const limiarBom = 80;
+
+  @override
+  Widget build(BuildContext context) {
+    final bom = percentagem >= limiarBom;
+    final cor = bom ? KColors.sucesso : KColors.avisoTexto;
+    return Row(
+      children: [
+        Icon(bom ? KIcons.relogio : KIcons.aviso, size: K.icone16, color: cor),
+        const SizedBox(width: K.s4),
+        Expanded(
+          child: Text(
+            'Chega a tempo em ~$percentagem% dos casos',
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(color: cor),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -68,6 +68,27 @@ void main() {
     expect(t.takeException(), isNull);
   });
 
+  testWidgets('cada proposta diz se chega a tempo (cor + ícone + texto)', (
+    t,
+  ) async {
+    _tela(t, altura: 2400);
+    await t.pumpWidget(_app(MockKisaluRepository()));
+    await t.pumpAndSettle();
+    // pr1 0,98 e pr2 1,0 → ~100 %; pr3 0,576 → ~60 % (com ícone de aviso)
+    expect(find.text('Chega a tempo em ~100% dos casos'), findsNWidgets(2));
+    expect(find.text('Chega a tempo em ~60% dos casos'), findsOneWidget);
+    expect(find.byIcon(KIcons.aviso), findsWidgets);
+    expect(t.takeException(), isNull);
+  });
+
+  testWidgets('a linha da chegada não transborda a 200 %', (t) async {
+    _tela(t, altura: 6000);
+    await t.pumpWidget(_app(MockKisaluRepository(), escala: 2));
+    await t.pumpAndSettle();
+    expect(find.text('Chega a tempo em ~60% dos casos'), findsOneWidget);
+    expect(t.takeException(), isNull);
+  });
+
   testWidgets('ordenar por chegada muda a primeira proposta', (t) async {
     _tela(t);
     await t.pumpWidget(_app(MockKisaluRepository()));

@@ -305,4 +305,22 @@ route(
   C.pedirDeNovo,
 );
 
+route(
+  router,
+  {
+    method: 'get',
+    path: '/propostas/:id/estimativa-chegada',
+    tag: 'Propostas',
+    summary: 'Probabilidade de chegar a tempo (Monte Carlo, ecrã 04)',
+    description:
+      '10 000 simulações de tempo = preparação U(5,15) + distância / velocidade lognormal (mediana 18 km/h, σ = 0,5) ' +
+      '+ atraso U(5,25) com probabilidade 0,3. Devolve {proposta_id, distancia_km, tempo_prometido_min, simulacoes, ' +
+      'media_min, p50_min, p90_min, prob_cumprir}. Semente fixa por proposta (resultado estável). Só o cliente do pedido ' +
+      'ou o profissional da proposta. 400 SEM_DISTANCIA sem GPS; 400 SEM_TEMPO_PROMETIDO em propostas "na hora pedida".',
+    access: 'auth',
+    params: idParam,
+  },
+  C.estimativaChegada,
+);
+
 export default router;

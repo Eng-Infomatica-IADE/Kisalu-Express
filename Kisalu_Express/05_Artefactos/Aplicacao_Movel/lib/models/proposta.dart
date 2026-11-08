@@ -1,3 +1,4 @@
+import 'estimativa_chegada.dart';
 import 'json_leitura.dart';
 import 'profissional.dart';
 
@@ -22,6 +23,7 @@ class Proposta {
     required this.chegadaPrevista,
     this.materialDetalhe,
     this.nomeNoCartao,
+    this.estimativaChegada,
   });
 
   /// PropostaJSON. O "inclui" sai das componentes com valor acima de zero.
@@ -39,6 +41,12 @@ class Proposta {
       ],
       chegadaPrevista: JsonLeitura.data(j['chegada_prevista']),
       materialDetalhe: JsonLeitura.textoOuNull(j['material_detalhe']),
+      estimativaChegada: switch (JsonLeitura.mapaOuNull(
+        j['estimativa_chegada'],
+      )) {
+        final m? => EstimativaChegada.fromJson(m),
+        null => null,
+      },
     );
   }
 
@@ -59,6 +67,10 @@ class Proposta {
   /// Momento previsto de chegada. A UI calcula "chega em 40 min" com o
   /// relógio do repositório (`KFormat.chegadaEm`).
   final DateTime chegadaPrevista;
+
+  /// Monte Carlo da chegada (só para o cliente); null sem distância ou
+  /// quando a proposta chega "na hora pedida".
+  final EstimativaChegada? estimativaChegada;
 
   String get nomeVisivel => nomeNoCartao ?? profissional.nome;
 

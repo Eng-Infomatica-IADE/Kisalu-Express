@@ -122,6 +122,20 @@ SELECT CONCAT(SUBSTRING_INDEX(uc.nome, ' ', 1), ' ', LEFT(SUBSTRING_INDEX(uc.nom
  GROUP BY a.id
  ORDER BY a.criado_em DESC;
 
+-- "Avaliações em números": distribuição por estrelas, média e média da categoria principal.
+-- O desvio padrão, o intervalo de confiança e a média bayesiana calculam-se na API
+-- (src/services/estatistica.ts, docs/MATEMATICA.md).
+SELECT p.avaliacoes_1, p.avaliacoes_2, p.avaliacoes_3, p.avaliacoes_4, p.avaliacoes_5,
+       p.total_avaliacoes,
+       (p.avaliacoes_1 + 2 * p.avaliacoes_2 + 3 * p.avaliacoes_3 + 4 * p.avaliacoes_4 + 5 * p.avaliacoes_5)
+         / p.total_avaliacoes AS media,
+       vm.media AS media_categoria
+  FROM profissional p
+  JOIN vw_media_categoria vm ON vm.categoria_id = (
+         SELECT pc.categoria_id FROM profissional_categoria pc JOIN categoria c ON c.id = pc.categoria_id
+          WHERE pc.profissional_id = p.utilizador_id ORDER BY c.ordem, c.id LIMIT 1)
+ WHERE p.utilizador_id = @joaquim;
+
 -- ---------------------------------------------------------------------
 -- 5. Painel do profissional (ecrã 14)
 -- ---------------------------------------------------------------------

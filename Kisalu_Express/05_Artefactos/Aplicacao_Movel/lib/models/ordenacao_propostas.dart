@@ -10,6 +10,16 @@ enum OrdenacaoPropostas {
 
   final String rotulo;
 
+  /// Chegada prometida mais cedo primeiro; em empate, a mais rápida na
+  /// simulação de Monte Carlo (`p50_min`, mediana do tempo de chegada).
+  static int _chegada(Proposta a, Proposta b) {
+    final c = a.chegadaPrevista.compareTo(b.chegadaPrevista);
+    final ea = a.estimativaChegada;
+    final eb = b.estimativaChegada;
+    if (c != 0 || ea == null || eb == null) return c;
+    return ea.p50Min.compareTo(eb.p50Min);
+  }
+
   /// Devolve uma cópia ordenada: preço crescente, melhor avaliação primeiro,
   /// chegada mais cedo primeiro. O desempate mantém a ordem original.
   List<Proposta> ordenar(List<Proposta> propostas) {
@@ -19,9 +29,7 @@ enum OrdenacaoPropostas {
       OrdenacaoPropostas.avaliacao => b.profissional.rating.compareTo(
         a.profissional.rating,
       ),
-      OrdenacaoPropostas.chegada => a.chegadaPrevista.compareTo(
-        b.chegadaPrevista,
-      ),
+      OrdenacaoPropostas.chegada => _chegada(a, b),
     };
     indexadas.sort((a, b) {
       final c = cmp(a.$2, b.$2);

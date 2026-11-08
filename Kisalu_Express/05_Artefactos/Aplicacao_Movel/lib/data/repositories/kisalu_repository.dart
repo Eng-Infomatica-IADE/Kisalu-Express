@@ -6,6 +6,7 @@ import '../../models/codigo_confirmacao.dart';
 import '../../models/comprovativo.dart';
 import '../../models/conversa.dart';
 import '../../models/estado_pedido.dart';
+import '../../models/estatisticas_avaliacoes.dart';
 import '../../models/mensagem.dart';
 import '../../models/notificacao.dart';
 import '../../models/novo_pedido.dart';
@@ -108,6 +109,10 @@ abstract interface class KisaluRepository {
 
   /// null → "não encontrado".
   Future<Profissional?> profissional(String id);
+
+  /// 03 · "Avaliações em números" (média, desvio padrão, intervalo de
+  /// confiança, distribuição). null → "não encontrado".
+  Future<EstatisticasAvaliacoes?> estatisticasAvaliacoes(String profissionalId);
 
   // ------------------------------------------------- 04 · Pedido e propostas
 

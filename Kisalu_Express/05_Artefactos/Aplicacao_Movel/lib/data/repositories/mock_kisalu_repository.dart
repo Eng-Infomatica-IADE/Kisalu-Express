@@ -6,6 +6,7 @@ import '../../models/codigo_confirmacao.dart';
 import '../../models/comprovativo.dart';
 import '../../models/conversa.dart';
 import '../../models/estado_pedido.dart';
+import '../../models/estatisticas_avaliacoes.dart';
 import '../../models/mensagem.dart';
 import '../../models/notificacao.dart';
 import '../../models/nova_proposta.dart';
@@ -26,6 +27,7 @@ import '../../models/verificacao_identidade.dart';
 import '../mock/mock_avisos.dart';
 import '../mock/mock_categorias.dart';
 import '../mock/mock_conversas.dart';
+import '../mock/mock_estatisticas.dart';
 import '../mock/mock_mapa.dart';
 import '../mock/mock_painel_profissional.dart';
 import '../mock/mock_pedidos.dart';
@@ -220,6 +222,15 @@ class MockKisaluRepository implements KisaluRepository {
   Future<Profissional?> profissional(String id) async {
     await _espera();
     return MockProfissionais.todos.where((p) => p.id == id).firstOrNull;
+  }
+
+  @override
+  Future<EstatisticasAvaliacoes?> estatisticasAvaliacoes(
+    String profissionalId,
+  ) async {
+    await _espera();
+    final json = MockEstatisticas.porProfissional[profissionalId];
+    return json == null ? null : EstatisticasAvaliacoes.fromJson(json);
   }
 
   // ------------------------------------------------- 04 · Pedido e propostas

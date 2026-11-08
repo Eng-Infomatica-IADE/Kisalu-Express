@@ -3,6 +3,16 @@
  */
 import { Db, execute, pool, query, queryOne } from '../config/db';
 import { distanciaKmSql, geoParams } from '../utils/geo';
+import { Distribuicao, PRIOR_M } from '../services/estatistica';
+
+/** Soma das estrelas e número de avaliações a partir das colunas avaliacoes_1..5 */
+const SOMA_SQL = (p: string) =>
+  `(${p}.avaliacoes_1 + 2 * ${p}.avaliacoes_2 + 3 * ${p}.avaliacoes_3 + 4 * ${p}.avaliacoes_4 + 5 * ${p}.avaliacoes_5)`;
+const N_SQL = (p: string) => `(${p}.avaliacoes_1 + ${p}.avaliacoes_2 + ${p}.avaliacoes_3 + ${p}.avaliacoes_4 + ${p}.avaliacoes_5)`;
+
+/** Categoria principal (a de menor ordem) do profissional `p` */
+const CATEGORIA_PRINCIPAL_SQL = `(SELECT pc.categoria_id FROM profissional_categoria pc JOIN categoria c ON c.id = pc.categoria_id
+   WHERE pc.profissional_id = p.utilizador_id ORDER BY c.ordem, c.id LIMIT 1)`;
 
 // ---------------------------------------------------------------------
 // Pesquisa
@@ -51,22 +61,28 @@ export async function pesquisar(f: FiltrosPesquisa, db: Db = pool) {
     params.push(`%${f.q}%`, `%${f.q}%`, `%${f.q}%`);
   }
   const having = temGeo ? 'HAVING distancia_km IS NOT NULL AND distancia_km <= ?' : '';
+  // "avaliacao" ordena pela média bayesiana (services/estatistica.ts): 5,0 em 2 avaliações vale ~4,82
+  // e uma nota fraca pesa pouco a quem tem 126. O prior é a média da categoria pesquisada
+  // (ou da categoria principal de cada um) e, sem avaliações na categoria, a média global.
   const ordem =
     f.ordenar === 'distancia' && temGeo ? 'distancia_km ASC'
     : f.ordenar === 'servicos' ? 'p.total_servicos DESC, p.media_avaliacao DESC'
-    : 'p.verificado DESC, p.media_avaliacao DESC, p.total_avaliacoes DESC';
+    : 'p.verificado DESC, media_bayesiana DESC, p.total_avaliacoes DESC';
+  const priorSql = `COALESCE((SELECT vm.media FROM vw_media_categoria vm WHERE vm.categoria_id = COALESCE(?, ${CATEGORIA_PRINCIPAL_SQL})),
+                             (SELECT SUM(${SOMA_SQL('g')}) / NULLIF(SUM(${N_SQL('g')}), 0) FROM profissional g), 0)`;
 
   return query(
     `SELECT p.utilizador_id AS id, u.nome, u.foto_url, p.zona, p.verificado, p.media_avaliacao, p.total_avaliacoes, p.total_servicos,
             (SELECT GROUP_CONCAT(c.nome ORDER BY c.ordem SEPARATOR ', ') FROM profissional_categoria pc
                JOIN categoria c ON c.id = pc.categoria_id WHERE pc.profissional_id = p.utilizador_id) AS categorias,
-            ROUND(${distSql}, 1) AS distancia_km
+            ROUND(${distSql}, 1) AS distancia_km,
+            ROUND((? * ${priorSql} + ${SOMA_SQL('p')}) / (? + ${N_SQL('p')}), 2) AS media_bayesiana
        FROM profissional p JOIN utilizador u ON u.id = p.utilizador_id
       WHERE ${where.join(' AND ')}
       ${having}
       ORDER BY ${ordem}
       LIMIT ? OFFSET ?`,
-    [...distParams, ...params, ...(temGeo ? [f.raioKm] : []), f.limit, f.offset],
+    [...distParams, PRIOR_M, f.categoriaId ?? null, PRIOR_M, ...params, ...(temGeo ? [f.raioKm] : []), f.limit, f.offset],
     db,
   );
 }
@@ -225,6 +241,26 @@ export async function perfil(id: number, db: Db = pool) {
     [id],
     db,
   );
+}
+
+/**
+ * Distribuição das avaliações por estrelas e média global da categoria principal
+ * (para GET /profissionais/:id/estatisticas). null se o profissional não existe.
+ */
+export async function distribuicaoAvaliacoes(id: number, db: Db = pool) {
+  const r = await queryOne(
+    `SELECT p.avaliacoes_1, p.avaliacoes_2, p.avaliacoes_3, p.avaliacoes_4, p.avaliacoes_5,
+            (SELECT vm.media FROM vw_media_categoria vm WHERE vm.categoria_id = ${CATEGORIA_PRINCIPAL_SQL}) AS media_categoria
+       FROM profissional p JOIN utilizador u ON u.id = p.utilizador_id
+      WHERE p.utilizador_id = ? AND u.ativo = TRUE`,
+    [id],
+    db,
+  );
+  if (!r) return null;
+  const distribuicao: Distribuicao = {
+    1: Number(r.avaliacoes_1), 2: Number(r.avaliacoes_2), 3: Number(r.avaliacoes_3), 4: Number(r.avaliacoes_4), 5: Number(r.avaliacoes_5),
+  };
+  return { distribuicao, mediaCategoria: r.media_categoria === null ? null : Number(r.media_categoria) };
 }
 
 export async function categorias(id: number, db: Db = pool) {

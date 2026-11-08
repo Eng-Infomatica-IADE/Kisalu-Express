@@ -75,7 +75,7 @@ Os telemóveis têm de ser angolanos: `+244` e 9 dígitos começados por 9 (acei
 | `npm run build` / `npm start` | Compila para `dist/` e arranca em produção |
 | `npm run db:reset` | Apaga e recria a base de dados: `create.sql` + `populate.sql` |
 | `npm run db:reset -- --consultas` | O mesmo e corre também `queries.sql` (altera alguns dados de exemplo) |
-| `npm test` | Corre os 66 testes automáticos (cria a base `kisalu_express_test`) |
+| `npm test` | Corre os testes automáticos (cria a base `kisalu_express_test`) |
 | `npm run typecheck` | Verifica os tipos TypeScript |
 
 ## Estrutura
@@ -86,6 +86,7 @@ database/
   populate.sql          Dados de exemplo (os mesmos do mock da app)
   queries.sql           Consultas de exemplo comentadas, por ecrã (login, categorias, painel, QR…)
 docs/CONTRATO-APP.md    Contrato de integração com a app Flutter (formas JSON e endpoints)
+docs/MATEMATICA.md      Estatística das avaliações e Monte Carlo da chegada (Matemática Discreta)
 src/
   app.ts                Monta o Express, o CORS, o Swagger (/docs) e os uploads (/uploads)
   config/               Variáveis de ambiente e ligação MySQL (pool + transações)
@@ -134,7 +135,8 @@ Cada rota é declarada uma só vez em `route(...)` com os seus schemas Zod. Dest
 | "Concluído" só pela leitura do QR ou do código de 6 dígitos | `POST /pedidos/confirmar` e `POST /pedidos/:id/confirmar` + trigger | RF10 |
 | Só se avalia um serviço confirmado, uma vez | trigger `trg_avaliacao_valida` | RF12 |
 | Reclamações até 7 dias depois de concluído | trigger `trg_reclamacao_garantia` | RF11 |
-| Média de estrelas e n.º de serviços atualizados automaticamente | triggers | RF06 |
+| Média de estrelas, distribuição por estrelas e n.º de serviços atualizados automaticamente | triggers | RF06 |
+| Estatística das avaliações e Monte Carlo da chegada (Matemática Discreta) | `services/estatistica.ts`, `services/monteCarlo.ts`, `docs/MATEMATICA.md` | — |
 | Imagens redimensionadas e comprimidas antes de gravar | `middlewares/upload.ts` | RM03 |
 
 Todas as respostas em `/api` (sucesso e erro) têm a mesma forma:
@@ -193,6 +195,7 @@ Base: `/api`. "Token" indica se o endpoint precisa de `Authorization: Bearer <to
 | GET | `/profissionais/eu/painel` | Início do profissional com os pedidos perto (ecrã 14) | sim |
 | GET | `/profissionais/{id}` | Perfil do profissional com trabalhos e avaliações (RF06, ecrã 03) | — |
 | GET | `/profissionais/{id}/avaliacoes` | Todas as avaliações de um profissional | — |
+| GET | `/profissionais/{id}/estatisticas` | Estatística das avaliações: média, desvio padrão, IC 95 %, distribuição, média bayesiana (ecrã 03) | — |
 | PUT | `/profissionais/eu` | Registo profissional (cria ou atualiza) e "Disponível para trabalhar" (ecrãs 12 e 14) | sim |
 | PUT | `/profissionais/eu/disponibilidade` | Definir o horário semanal (RF15) | sim |
 | GET | `/profissionais/eu/verificacao` | Estado da minha verificação (ecrã 13) | sim |
@@ -245,6 +248,7 @@ Base: `/api`. "Token" indica se o endpoint precisa de `Authorization: Bearer <to
 | POST | `/propostas/{id}/retirar` | Profissional: retirar proposta | sim |
 | POST | `/propostas/{id}/recusar` | Cliente: recusar proposta (RF05) | sim |
 | POST | `/propostas/{id}/aceitar` | Cliente: aceitar proposta e fechar o acordo (RF05) | sim |
+| GET | `/propostas/{id}/estimativa-chegada` | Probabilidade de chegar a tempo, por Monte Carlo (ecrã 04) | sim |
 | POST | `/pedidos/{id}/alteracoes-preco` | Profissional: pedir alteração do preço combinado | sim |
 | POST | `/alteracoes-preco/{id}/responder` | Cliente: aprovar ou recusar a alteração de preço | sim |
 

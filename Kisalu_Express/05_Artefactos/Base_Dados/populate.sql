@@ -229,13 +229,23 @@ INSERT INTO pergunta_frequente (tema, pergunta, resposta, ordem) VALUES
 
 -- ---------------------------------------------------------------------
 -- Reputação acumulada antes destes dados (como no mock da app).
--- Os triggers somam a partir daqui: a média é incremental.
+-- Os triggers somam a partir daqui: contagem por estrelas, total e média.
 -- ---------------------------------------------------------------------
 
-UPDATE profissional SET media_avaliacao = 4.8, total_avaliacoes = 126, total_servicos = 126 WHERE utilizador_id = 2;
-UPDATE profissional SET media_avaliacao = 4.6, total_avaliacoes = 54,  total_servicos = 60  WHERE utilizador_id = 3;
-UPDATE profissional SET media_avaliacao = 4.9, total_avaliacoes = 97,  total_servicos = 110 WHERE utilizador_id = 5;
-UPDATE profissional SET media_avaliacao = 4.9, total_avaliacoes = 88,  total_servicos = 41  WHERE utilizador_id = 6;
-UPDATE profissional SET media_avaliacao = 4.7, total_avaliacoes = 73,  total_servicos = 80  WHERE utilizador_id = 7;
-UPDATE profissional SET media_avaliacao = 4.5, total_avaliacoes = 39,  total_servicos = 44  WHERE utilizador_id = 8;
-UPDATE profissional SET media_avaliacao = 4.4, total_avaliacoes = 28,  total_servicos = 31  WHERE utilizador_id = 9;
+-- avaliacoes_1..5 é a distribuição por estrelas (inclui as linhas de `avaliacao` acima);
+-- a soma dá total_avaliacoes e a média arredondada dá media_avaliacao.
+--   Joaquim: 1+1·2+3·3+13·4+108·5 = 604 em 126 → 4,79 → 4,8
+UPDATE profissional SET media_avaliacao = 4.8, total_avaliacoes = 126, total_servicos = 126,
+       avaliacoes_1 = 1, avaliacoes_2 = 1, avaliacoes_3 = 3, avaliacoes_4 = 13, avaliacoes_5 = 108 WHERE utilizador_id = 2;
+UPDATE profissional SET media_avaliacao = 4.6, total_avaliacoes = 54,  total_servicos = 60,
+       avaliacoes_1 = 1, avaliacoes_2 = 1, avaliacoes_3 = 2, avaliacoes_4 = 12, avaliacoes_5 = 38  WHERE utilizador_id = 3;
+UPDATE profissional SET media_avaliacao = 4.9, total_avaliacoes = 97,  total_servicos = 110,
+       avaliacoes_1 = 0, avaliacoes_2 = 0, avaliacoes_3 = 2, avaliacoes_4 = 7,  avaliacoes_5 = 88  WHERE utilizador_id = 5;
+UPDATE profissional SET media_avaliacao = 4.9, total_avaliacoes = 88,  total_servicos = 41,
+       avaliacoes_1 = 0, avaliacoes_2 = 0, avaliacoes_3 = 1, avaliacoes_4 = 7,  avaliacoes_5 = 80  WHERE utilizador_id = 6;
+UPDATE profissional SET media_avaliacao = 4.7, total_avaliacoes = 73,  total_servicos = 80,
+       avaliacoes_1 = 0, avaliacoes_2 = 1, avaliacoes_3 = 3, avaliacoes_4 = 13, avaliacoes_5 = 56  WHERE utilizador_id = 7;
+UPDATE profissional SET media_avaliacao = 4.5, total_avaliacoes = 39,  total_servicos = 44,
+       avaliacoes_1 = 0, avaliacoes_2 = 1, avaliacoes_3 = 3, avaliacoes_4 = 9,  avaliacoes_5 = 26  WHERE utilizador_id = 8;
+UPDATE profissional SET media_avaliacao = 4.4, total_avaliacoes = 28,  total_servicos = 31,
+       avaliacoes_1 = 0, avaliacoes_2 = 1, avaliacoes_3 = 3, avaliacoes_4 = 8,  avaliacoes_5 = 16  WHERE utilizador_id = 9;

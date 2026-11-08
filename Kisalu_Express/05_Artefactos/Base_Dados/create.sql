@@ -102,6 +102,13 @@ CREATE TABLE profissional (
   verificado_em     DATETIME     NULL,
   media_avaliacao   DECIMAL(2,1) NOT NULL DEFAULT 0.0,   -- atualizada por trigger
   total_avaliacoes  INT UNSIGNED NOT NULL DEFAULT 0,
+  -- Distribuição das avaliações por estrelas (estatística do ecrã 03, docs/MATEMATICA.md).
+  -- Inclui o histórico anterior às linhas de `avaliacao`; o trigger soma 1 à coluna certa.
+  avaliacoes_1      INT UNSIGNED NOT NULL DEFAULT 0,
+  avaliacoes_2      INT UNSIGNED NOT NULL DEFAULT 0,
+  avaliacoes_3      INT UNSIGNED NOT NULL DEFAULT 0,
+  avaliacoes_4      INT UNSIGNED NOT NULL DEFAULT 0,
+  avaliacoes_5      INT UNSIGNED NOT NULL DEFAULT 0,
   total_servicos    INT UNSIGNED NOT NULL DEFAULT 0,     -- serviços confirmados por QR
   CONSTRAINT fk_profissional_utilizador FOREIGN KEY (utilizador_id)
     REFERENCES utilizador(id) ON DELETE CASCADE
@@ -494,16 +501,23 @@ BEGIN
   END IF;
 END$$
 
--- Reputação que se acumula: a média é atualizada de forma incremental,
--- para não perder o histórico que já vem nos dados de exemplo.
--- (No UPDATE, a média é calculada antes de somar 1 ao total.)
+-- Reputação que se acumula: soma 1 à contagem das estrelas dadas e recalcula o total
+-- e a média a partir da distribuição (que já traz o histórico dos dados de exemplo).
+-- No UPDATE de uma só tabela o MySQL aplica as atribuições da esquerda para a direita,
+-- por isso o total e a média já usam a contagem atualizada.
 CREATE TRIGGER trg_avaliacao_media
 AFTER INSERT ON avaliacao
 FOR EACH ROW
 BEGIN
   UPDATE profissional p
-     SET p.media_avaliacao  = ROUND((p.media_avaliacao * p.total_avaliacoes + NEW.estrelas) / (p.total_avaliacoes + 1), 1),
-         p.total_avaliacoes = p.total_avaliacoes + 1
+     SET p.avaliacoes_1     = p.avaliacoes_1 + (NEW.estrelas = 1),
+         p.avaliacoes_2     = p.avaliacoes_2 + (NEW.estrelas = 2),
+         p.avaliacoes_3     = p.avaliacoes_3 + (NEW.estrelas = 3),
+         p.avaliacoes_4     = p.avaliacoes_4 + (NEW.estrelas = 4),
+         p.avaliacoes_5     = p.avaliacoes_5 + (NEW.estrelas = 5),
+         p.total_avaliacoes = p.avaliacoes_1 + p.avaliacoes_2 + p.avaliacoes_3 + p.avaliacoes_4 + p.avaliacoes_5,
+         p.media_avaliacao  = ROUND((p.avaliacoes_1 + 2 * p.avaliacoes_2 + 3 * p.avaliacoes_3
+                                     + 4 * p.avaliacoes_4 + 5 * p.avaliacoes_5) / p.total_avaliacoes, 1)
    WHERE p.utilizador_id = NEW.profissional_id;
 END$$
 
@@ -564,6 +578,19 @@ SELECT pr.id               AS proposta_id,
   FROM proposta pr
   JOIN profissional p ON p.utilizador_id = pr.profissional_id
   JOIN utilizador u   ON u.id = p.utilizador_id;
+
+-- Média global de cada categoria (prior da média bayesiana, docs/MATEMATICA.md):
+-- soma de todas as estrelas dos profissionais da categoria a dividir pelo número de avaliações.
+-- Um profissional com duas categorias conta nas duas.
+CREATE VIEW vw_media_categoria AS
+SELECT pc.categoria_id,
+       SUM(p.avaliacoes_1 + p.avaliacoes_2 + p.avaliacoes_3 + p.avaliacoes_4 + p.avaliacoes_5) AS n,
+       SUM(p.avaliacoes_1 + 2 * p.avaliacoes_2 + 3 * p.avaliacoes_3 + 4 * p.avaliacoes_4 + 5 * p.avaliacoes_5) AS soma,
+       SUM(p.avaliacoes_1 + 2 * p.avaliacoes_2 + 3 * p.avaliacoes_3 + 4 * p.avaliacoes_4 + 5 * p.avaliacoes_5)
+         / NULLIF(SUM(p.avaliacoes_1 + p.avaliacoes_2 + p.avaliacoes_3 + p.avaliacoes_4 + p.avaliacoes_5), 0) AS media
+  FROM profissional_categoria pc
+  JOIN profissional p ON p.utilizador_id = pc.profissional_id
+ GROUP BY pc.categoria_id;
 
 -- Comprovativo digital (RF10): valor, data e profissional
 CREATE VIEW vw_comprovativo AS

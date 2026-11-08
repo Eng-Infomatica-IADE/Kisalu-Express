@@ -1,6 +1,6 @@
 # Kisalu Express · Modelo de dados
 
-Base de dados MySQL 8.0+ `kisalu_express` (utf8mb4), criada por `database/create.sql`. Este documento tem o modelo ER, o dicionário de dados, os triggers e vistas, e o diagrama de classes do domínio. São 25 tabelas, 5 triggers e 2 vistas. Datas em UTC; valores monetários em kwanzas (Kz), `DECIMAL(12,2)`.
+Base de dados MySQL 8.0+ `kisalu_express` (utf8mb4), criada por `database/create.sql`. Este documento tem o modelo ER, o dicionário de dados, os triggers e vistas, e o diagrama de classes do domínio. São 25 tabelas, 5 triggers e 3 vistas. Datas em UTC; valores monetários em kwanzas (Kz), `DECIMAL(12,2)`.
 
 Legenda das chaves nas tabelas: **PK** chave primária, **FK** chave estrangeira, **UQ** único.
 
@@ -282,7 +282,8 @@ Especialização 1:1 de `utilizador`, só para quem trabalha como profissional.
 | verificado | BOOLEAN | não | | FALSE | Selo "Verificado" (RF07) |
 | verificado_em | DATETIME | sim | | | Quando recebeu o selo |
 | media_avaliacao | DECIMAL(2,1) | não | | 0.0 | Média de estrelas (atualizada por trigger) |
-| total_avaliacoes | INT UNSIGNED | não | | 0 | Número de avaliações |
+| total_avaliacoes | INT UNSIGNED | não | | 0 | Número de avaliações (soma de `avaliacoes_1..5`) |
+| avaliacoes_1 … avaliacoes_5 | INT UNSIGNED | não | | 0 | Distribuição: número de avaliações com 1, 2, 3, 4 e 5 estrelas (inclui o histórico; base da estatística do ecrã 03, ver `MATEMATICA.md`) |
 | total_servicos | INT UNSIGNED | não | | 0 | Serviços confirmados por QR |
 
 #### profissional_categoria
@@ -593,7 +594,7 @@ Perguntas frequentes (RF16).
 |---|---|---|---|
 | `trg_pedido_historico` | AFTER UPDATE | pedido | Quando o `estado` muda, insere em `historico_estado_pedido` o estado anterior e o novo (RF08). |
 | `trg_avaliacao_valida` | BEFORE INSERT | avaliacao | Recusa a avaliação (SQLSTATE 45000) se o pedido não estiver `concluido` ("Só é possível avaliar serviços confirmados.") ou se `cliente_id` não for o cliente do pedido (RF12). |
-| `trg_avaliacao_media` | AFTER INSERT | avaliacao | Atualiza `profissional.media_avaliacao` de forma incremental, `(média × total + estrelas) / (total + 1)` arredondada a 1 casa, e soma 1 a `total_avaliacoes`. Assim não se perde o histórico dos dados de exemplo. |
+| `trg_avaliacao_media` | AFTER INSERT | avaliacao | Soma 1 a `profissional.avaliacoes_<estrelas>` e recalcula `total_avaliacoes` (soma das cinco contagens) e `media_avaliacao` (`Σ k·n_k / total`, arredondada a 1 casa). Como as contagens já trazem o histórico dos dados de exemplo, nada se perde. |
 | `trg_reclamacao_garantia` | BEFORE INSERT | reclamacao | Recusa a reclamação se o pedido ainda for `rascunho`, `publicado` ou `com_propostas`, ou se estiver `concluido` há mais de 7 dias (RF11). |
 | `trg_confirmacao_concluir` | AFTER UPDATE | confirmacao_servico | Quando a confirmação passa a `confirmado`, põe o pedido em `concluido` com `concluido_em = confirmado_em` e soma 1 ao `total_servicos` do profissional da proposta aceite (RF10). |
 
@@ -602,6 +603,7 @@ Perguntas frequentes (RF16).
 | Nome | O que devolve |
 |---|---|
 | `vw_cartao_proposta` | Cartão de proposta (RF04): `proposta_id`, `pedido_id`, `profissional_id`, nome do profissional, `valor_total`, `inclui_descricao`, `material_detalhe`, `tempo_chegada_min`, `na_hora_pedida`, `media_avaliacao`, `total_avaliacoes`, `total_servicos`, `verificado` e `estado`. Junta `proposta`, `profissional` e `utilizador`. |
+| `vw_media_categoria` | Por `categoria_id`: `n` (avaliações dos profissionais da categoria), `soma` (total de estrelas) e `media` = soma / n. Prior da média bayesiana (ver `MATEMATICA.md`). Um profissional com duas categorias conta nas duas. |
 | `vw_comprovativo` | Comprovativo digital (RF10) das confirmações em estado `confirmado`: `numero_comprovativo`, pedido, título, cliente, profissional, `valor_kz`, `metodo_pagamento`, `metodo_confirmacao`, `confirmado_em`. Junta `confirmacao_servico`, `pedido`, `proposta` e dois `utilizador` (cliente e profissional). |
 
 ## 4. Diagrama de classes (domínio)

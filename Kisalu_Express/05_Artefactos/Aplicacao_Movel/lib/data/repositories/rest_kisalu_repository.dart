@@ -8,6 +8,7 @@ import '../../models/codigo_confirmacao.dart';
 import '../../models/comprovativo.dart';
 import '../../models/conversa.dart';
 import '../../models/estado_pedido.dart';
+import '../../models/estatisticas_avaliacoes.dart';
 import '../../models/json_leitura.dart';
 import '../../models/mensagem.dart';
 import '../../models/notificacao.dart';
@@ -297,6 +298,16 @@ class RestKisaluRepository implements KisaluRepository {
   @override
   Future<Profissional?> profissional(String id) async => _idValido(id)
       ? _obterOuNull('/profissionais/$id', Profissional.fromJson)
+      : null;
+
+  @override
+  Future<EstatisticasAvaliacoes?> estatisticasAvaliacoes(
+    String profissionalId,
+  ) async => _idValido(profissionalId)
+      ? _obterOuNull(
+          '/profissionais/$profissionalId/estatisticas',
+          EstatisticasAvaliacoes.fromJson,
+        )
       : null;
 
   // ------------------------------------------------- 04 · Pedido e propostas

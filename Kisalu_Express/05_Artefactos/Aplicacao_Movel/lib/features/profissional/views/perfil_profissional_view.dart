@@ -7,8 +7,10 @@ import '../../../core/theme/k_colors.dart';
 import '../../../core/theme/k_tokens.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../../data/repositories/kisalu_repository.dart';
+import '../../../models/estatisticas_avaliacoes.dart';
 import '../../../models/profissional.dart';
 import '../controllers/perfil_profissional_controller.dart';
+import '../widgets/avaliacoes_em_numeros.dart';
 import '../widgets/barra_pedir_servico.dart';
 import '../widgets/cabecalho_perfil.dart';
 import '../widgets/trabalhos_feitos.dart';
@@ -62,16 +64,18 @@ class _PerfilCorpo extends StatelessWidget {
         onNaoEncontrado: () => context.go(AppRoutes.inicio),
         carregar: (_) => simples(const KSkeletonLista()),
         vazio: (_) => simples(const SizedBox()),
-        sucesso: (context, p) => _Conteudo(profissional: p),
+        sucesso: (context, p) =>
+            _Conteudo(profissional: p, estatisticas: c.estatisticas),
       ),
     );
   }
 }
 
 class _Conteudo extends StatelessWidget {
-  const _Conteudo({required this.profissional});
+  const _Conteudo({required this.profissional, this.estatisticas});
 
   final Profissional profissional;
+  final EstatisticasAvaliacoes? estatisticas;
 
   @override
   Widget build(BuildContext context) {
@@ -127,6 +131,10 @@ class _Conteudo extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: K.s16 + K.s4),
+                      ],
+                      if (estatisticas case final e? when e.n > 0) ...[
+                        AvaliacoesEmNumeros(estatisticas: e),
+                        const SizedBox(height: K.s24),
                       ],
                       if (p.avaliacoes.isNotEmpty) ...[
                         const KSecaoTitulo(titulo: 'Avaliações recentes'),

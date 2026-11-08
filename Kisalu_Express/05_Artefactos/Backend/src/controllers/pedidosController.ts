@@ -12,6 +12,7 @@ import { notificar } from '../services/notificacoes';
 import { categoria as obterCategoria } from '../services/categorias';
 import { kz, nomeCurto, pedidoJSON, pedidosJSON } from '../services/formatos';
 import { papelNoPedido } from '../services/pedidos';
+import { estimativaDaProposta } from '../services/monteCarlo';
 import * as Pedido from '../models/pedidoModel';
 import * as Proposta from '../models/propostaModel';
 import * as Conversa from '../models/conversaModel';
@@ -335,4 +336,19 @@ export async function pedirDeNovo(req: Request, res: Response) {
   const id = await Pedido.copiarComoRascunho(req.valid.params.id, req.user!.id);
   if (!id) throw notFound('Pedido');
   res.status(201).json({ id, estado: 'rascunho', mensagem: 'Reveja o pedido e publique.', pedido: await pedidoJSON(id, req.user!) });
+}
+
+// ---------------- Estimativa de chegada (Monte Carlo, ecrã 04) ----------------
+
+/** Só o cliente do pedido ou o profissional da proposta (ou o admin). Ver docs/MATEMATICA.md. */
+export async function estimativaChegada(req: Request, res: Response) {
+  const pr = await Proposta.paraEstimativa(req.valid.params.id);
+  const u = req.user!;
+  if (!pr || (u.id !== pr.cliente_id && u.id !== pr.profissional_id && u.tipo_perfil !== 'admin')) throw notFound('Proposta');
+  if (pr.na_hora_pedida || pr.tempo_chegada_min === null) {
+    throw badRequest('Esta proposta chega à hora pedida: não há minutos prometidos para simular.', 'SEM_TEMPO_PROMETIDO');
+  }
+  const distancia = distanciaKm(pr.p_lat, pr.p_lng, pr.m_lat, pr.m_lng);
+  if (distancia === null) throw badRequest('Falta a localização do profissional ou da morada.', 'SEM_DISTANCIA');
+  res.json({ proposta_id: pr.id, distancia_km: distancia, tempo_prometido_min: pr.tempo_chegada_min, ...estimativaDaProposta(pr.id, distancia, pr.tempo_chegada_min) });
 }

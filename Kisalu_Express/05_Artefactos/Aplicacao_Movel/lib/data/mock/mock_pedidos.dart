@@ -1,6 +1,7 @@
 import '../../models/categoria.dart';
 import '../../models/comprovativo.dart';
 import '../../models/estado_pedido.dart';
+import '../../models/estimativa_chegada.dart';
 import '../../models/pedido.dart';
 import '../../models/proposta.dart';
 import 'mock_profissionais.dart';
@@ -33,6 +34,14 @@ abstract final class MockPedidos {
       materialDetalhe: 'sifão e vedante',
       nomeNoCartao: 'Joaquim M.',
       chegadaPrevista: _hoje(15, 40),
+      // Valores que a API devolve para estas propostas (Monte Carlo).
+      estimativaChegada: const EstimativaChegada(
+        simulacoes: 10000,
+        mediaMin: 19,
+        p50Min: 16.6,
+        p90Min: 32.8,
+        probCumprir: 0.98,
+      ),
     ),
     Proposta(
       id: 'pr2',
@@ -43,6 +52,13 @@ abstract final class MockPedidos {
         ComponenteProposta.deslocacao,
       ],
       chegadaPrevista: _hoje(16),
+      estimativaChegada: const EstimativaChegada(
+        simulacoes: 10000,
+        mediaMin: 21.5,
+        p50Min: 18.9,
+        p90Min: 35.7,
+        probCumprir: 1,
+      ),
     ),
     Proposta(
       id: 'pr3',
@@ -54,6 +70,13 @@ abstract final class MockPedidos {
         ComponenteProposta.deslocacao,
       ],
       chegadaPrevista: _hoje(15, 25),
+      estimativaChegada: const EstimativaChegada(
+        simulacoes: 10000,
+        mediaMin: 25.5,
+        p50Min: 23.1,
+        p90Min: 40.1,
+        probCumprir: 0.576,
+      ),
     ),
   ];
 

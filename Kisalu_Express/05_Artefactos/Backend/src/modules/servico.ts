@@ -133,7 +133,7 @@ route(
     const resumos = await resumosProfissionais(rows.map((r) => r.profissional_id), ref);
     const lista = rows.map((r) => {
       const { latitude: _la, longitude: _lo, ...prof } = resumos.get(r.profissional_id)!;
-      return { ...propostaJSON(r, pe.data_pretendida, prof), valor_formatado: fmtKz(r.valor_total) };
+      return { ...propostaJSON(r, pe.data_pretendida, prof, true), valor_formatado: fmtKz(r.valor_total) };
     });
     const quando = (x: any) => (x.chegada_prevista ? new Date(x.chegada_prevista).getTime() : Infinity);
     const ordem = {

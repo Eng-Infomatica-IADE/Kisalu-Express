@@ -301,4 +301,21 @@ route(
   C.listarAvaliacoes,
 );
 
+route(
+  router,
+  {
+    method: 'get',
+    path: '/profissionais/:id/estatisticas',
+    tag: TAG,
+    summary: 'Estatística das avaliações (ecrã 03, "Avaliações em números")',
+    description:
+      'A partir da distribuição 1–5 estrelas: n, média, mediana, moda, desvio padrão e variância amostrais, ' +
+      'intervalo de confiança a 95 % da média (t de Student se n < 30, normal z = 1,96 se n ≥ 30), ' +
+      'distribuição e média bayesiana (prior de 10 avaliações à média da categoria principal). ' +
+      'Sem avaliações, os valores vêm a null. Fórmulas em docs/MATEMATICA.md.',
+    params: idParam,
+  },
+  C.estatisticas,
+);
+
 export default router;

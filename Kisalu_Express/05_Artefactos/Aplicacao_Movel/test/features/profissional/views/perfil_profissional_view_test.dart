@@ -139,4 +139,11 @@ void main() {
     await abrir(t, escala: 2, repo: _PoucosTrabalhos());
     expect(t.takeException(), isNull);
   });
+
+  testWidgets('mostra o bloco "Avaliações em números" do Joaquim', (t) async {
+    await abrir(t);
+    await t.scrollUntilVisible(find.text('n = 126 avaliações'), 200);
+    expect(find.text('Avaliações em números'), findsOneWidget);
+    expect(find.text('Entre 4,7 e 4,9 com 95% de confiança'), findsOneWidget);
+  });
 }

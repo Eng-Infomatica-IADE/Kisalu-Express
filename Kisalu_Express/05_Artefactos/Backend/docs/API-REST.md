@@ -2,7 +2,7 @@
 
 > Gerado automaticamente por `npm run docs:api` (`scripts/gerar-docs-api.ts`) a partir da especificação OpenAPI. Não editar à mão: alterar as rotas em `src/modules/**` e voltar a gerar.
 
-Formato baseado em [bocoup/api-docs-template](https://github.com/bocoup/api-docs-template). Versão da API: 1.0.0. Total: **80 endpoints** em 10 grupos.
+Formato baseado em [bocoup/api-docs-template](https://github.com/bocoup/api-docs-template). Versão da API: 1.0.0. Total: **82 endpoints** em 10 grupos.
 
 * **Base URL:** `http://localhost:3000/api`
 * **Swagger interativo:** `http://localhost:3000/docs` · **OpenAPI JSON:** `http://localhost:3000/docs.json`
@@ -79,7 +79,7 @@ Nos blocos abaixo, o corpo de sucesso mostra o envelope; o conteúdo exato de `d
   * `GET /api/categorias` — Categorias de serviço com ícone e rótulo (RF02)
   * `GET /api/etiquetas` — Etiquetas rápidas para avaliar (RF12)
   * `GET /api/ajuda/perguntas` — Perguntas frequentes (RF16)
-* [Profissionais](#profissionais) (15)
+* [Profissionais](#profissionais) (16)
   * `GET /api/profissionais` — Pesquisar profissionais (RF02)
   * `GET /api/profissionais/perto` — Profissionais perto de si (ecrã 02)
   * `GET /api/profissionais/mapa` — Pinos do mapa (ecrã 22)
@@ -95,6 +95,7 @@ Nos blocos abaixo, o corpo de sucesso mostra o envelope; o conteúdo exato de `d
   * `DELETE /api/profissionais/eu/trabalhos/{id}` — Remover foto da galeria
   * `GET /api/profissionais/{id}` — Perfil do profissional com trabalhos feitos (RF06)
   * `GET /api/profissionais/{id}/avaliacoes` — Todas as avaliações de um profissional
+  * `GET /api/profissionais/{id}/estatisticas` — Estatística das avaliações (ecrã 03, "Avaliações em números")
 * [Moradas e favoritos](#moradas-e-favoritos) (7)
   * `GET /api/moradas` — As minhas moradas
   * `POST /api/moradas` — Guardar morada (GPS + ponto de referência)
@@ -119,7 +120,8 @@ Nos blocos abaixo, o corpo de sucesso mostra o envelope; o conteúdo exato de `d
   * `POST /api/pedidos/{id}/cancelar` — Cancelar pedido (RF05)
   * `PATCH /api/pedidos/{id}/estado` — Profissional: "A caminho" e "Em curso" (RF08)
   * `POST /api/pedidos/{id}/pedir-de-novo` — "Pedir de novo": cria um rascunho igual a um pedido anterior (RF13)
-* [Propostas](#propostas) (8)
+* [Propostas](#propostas) (9)
+  * `GET /api/propostas/{id}/estimativa-chegada` — Probabilidade de chegar a tempo (Monte Carlo, ecrã 04)
   * `GET /api/pedidos/{id}/propostas` — Cliente: comparar propostas (RF04)
   * `POST /api/pedidos/{id}/propostas` — Profissional: enviar proposta com preço fechado (RF15, ecrã 15)
   * `PATCH /api/propostas/{id}` — Profissional: corrigir a proposta antes de ser aceite
@@ -2474,6 +2476,73 @@ Nos blocos abaixo, o corpo de sucesso mostra o envelope; o conteúdo exato de `d
 
 ---
 
+#### Estatística das avaliações (ecrã 03, "Avaliações em números")
+
+* **Title**
+
+  Estatística das avaliações (ecrã 03, "Avaliações em números")
+
+* **URL**
+
+  `/api/profissionais/{id}/estatisticas`
+
+* **Method**
+
+  `GET`
+
+* **Autenticação**
+
+  Pública (não precisa de token).
+
+* **URL Params**
+
+  **Required:**
+
+  `id=[integer (mín. 0)]` (no caminho)  
+
+  **Optional:**
+
+  Nenhum.
+
+* **Data Params**
+
+  Nenhum.
+
+* **Success Response**
+
+  * **Code:** 200  
+  * **Content:**
+
+    ```json
+    {
+      "title": "Sucesso",
+      "status": 200,
+      "detail": "Pedido processado.",
+      "instance": "/api/profissionais/0/estatisticas",
+      "data": "<conteúdo específico do endpoint>"
+    }
+    ```
+
+* **Error Response**
+
+  * **Code:** 400 — Dados inválidos  
+    **Content:** `{ "title": "Dados inválidos", "status": 400, "detail": "…", "instance": "/api/profissionais/0/estatisticas", "data": { "codigo": "VALIDACAO" } }`
+
+  * **Code:** 404 — Não encontrado  
+    **Content:** `{ "title": "Não encontrado", "status": 404, "detail": "…", "instance": "/api/profissionais/0/estatisticas", "data": { "codigo": "NAO_ENCONTRADO" } }`
+
+* **Sample Call**
+
+  ```bash
+  curl -X GET "http://localhost:3000/api/profissionais/0/estatisticas"
+  ```
+
+* **Notes**
+
+  A partir da distribuição 1–5 estrelas: n, média, mediana, moda, desvio padrão e variância amostrais, intervalo de confiança a 95 % da média (t de Student se n < 30, normal z = 1,96 se n ≥ 30), distribuição e média bayesiana (prior de 10 avaliações à média da categoria principal). Sem avaliações, os valores vêm a null. Fórmulas em docs/MATEMATICA.md. Rota pública.
+
+---
+
 ## Moradas e favoritos
 
 #### As minhas moradas
@@ -4324,6 +4393,80 @@ Nos blocos abaixo, o corpo de sucesso mostra o envelope; o conteúdo exato de `d
 ---
 
 ## Propostas
+
+#### Probabilidade de chegar a tempo (Monte Carlo, ecrã 04)
+
+* **Title**
+
+  Probabilidade de chegar a tempo (Monte Carlo, ecrã 04)
+
+* **URL**
+
+  `/api/propostas/{id}/estimativa-chegada`
+
+* **Method**
+
+  `GET`
+
+* **Autenticação**
+
+  Obrigatória: cabeçalho `Authorization: Bearer <token>`.
+
+* **URL Params**
+
+  **Required:**
+
+  `id=[integer (mín. 0)]` (no caminho)  
+
+  **Optional:**
+
+  Nenhum.
+
+* **Data Params**
+
+  Nenhum.
+
+* **Success Response**
+
+  * **Code:** 200  
+  * **Content:**
+
+    ```json
+    {
+      "title": "Sucesso",
+      "status": 200,
+      "detail": "Pedido processado.",
+      "instance": "/api/propostas/0/estimativa-chegada",
+      "data": "<conteúdo específico do endpoint>"
+    }
+    ```
+
+* **Error Response**
+
+  * **Code:** 400 — Dados inválidos  
+    **Content:** `{ "title": "Dados inválidos", "status": 400, "detail": "…", "instance": "/api/propostas/0/estimativa-chegada", "data": { "codigo": "VALIDACAO" } }`
+
+  * **Code:** 401 — Falha na autenticação  
+    **Content:** `{ "title": "Falha na autenticação", "status": 401, "detail": "…", "instance": "/api/propostas/0/estimativa-chegada", "data": { "codigo": "NAO_AUTENTICADO" } }`
+
+  * **Code:** 403 — Acesso negado  
+    **Content:** `{ "title": "Acesso negado", "status": 403, "detail": "…", "instance": "/api/propostas/0/estimativa-chegada", "data": { "codigo": "SEM_PERMISSAO" } }`
+
+  * **Code:** 404 — Não encontrado  
+    **Content:** `{ "title": "Não encontrado", "status": 404, "detail": "…", "instance": "/api/propostas/0/estimativa-chegada", "data": { "codigo": "NAO_ENCONTRADO" } }`
+
+* **Sample Call**
+
+  ```bash
+  curl -X GET "http://localhost:3000/api/propostas/0/estimativa-chegada" \
+    -H "Authorization: Bearer <token>"
+  ```
+
+* **Notes**
+
+  10 000 simulações de tempo = preparação U(5,15) + distância / velocidade lognormal (mediana 18 km/h, σ = 0,5) + atraso U(5,25) com probabilidade 0,3. Devolve {proposta_id, distancia_km, tempo_prometido_min, simulacoes, media_min, p50_min, p90_min, prob_cumprir}. Semente fixa por proposta (resultado estável). Só o cliente do pedido ou o profissional da proposta. 400 SEM_DISTANCIA sem GPS; 400 SEM_TEMPO_PROMETIDO em propostas "na hora pedida".
+
+---
 
 #### Cliente: comparar propostas (RF04)
 
