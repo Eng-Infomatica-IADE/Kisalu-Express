@@ -32,3 +32,5 @@ Todas as imagens em PNG, sem marca de água, com pelo menos 3000 px no maior lad
 | img_26.png | Artefactos | Arquitetura da solução v2 |
 
 As imagens 1 a 13 documentam a versão da 1.ª entrega; as seguintes, o protótipo corrigido após a avaliação heurística. Imagens de testes e do produto final serão acrescentadas nas entregas seguintes.
+
+As capturas atuais dos 22 ecrãs da app (v3.1, incluindo o lado do prestador, ecrãs 11 a 22) estão em [../04_Documentacao_Tecnica/ecras](../04_Documentacao_Tecnica/ecras); a numeração acima mantém-se.

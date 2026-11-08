@@ -1,5 +1,20 @@
 # Artefactos
 
+## Código e dados do projeto
+
+| Pasta | O que é | Origem | Como correr |
+|---|---|---|---|
+| [Aplicacao_Movel](Aplicacao_Movel) | App Flutter/Dart (cliente e prestador, 22 ecrãs, v3.1) | Conteúdo de `app/` do repositório [kissalu-app](https://github.com/Eng-Infomatica-IADE/kissalu-app) | `flutter run --dart-define=KISALU_API=http://10.0.2.2:3000/api` (10.0.2.2 é o endereço do computador visto pelo emulador Android) |
+| [Backend](Backend) | API REST em Node.js, Express 5 e TypeScript | Repositório [kisalu-api](https://github.com/Eng-Infomatica-IADE/kisalu-api), sem segredos nem SQL | `docker compose up -d db` e depois `npm run dev` (ver [LEIA-ME](Backend/LEIA-ME.md)) |
+| [Base_Dados](Base_Dados) | Base de dados MySQL 8: `create.sql`, `populate.sql`, `queries.sql` | `database/` do repositório kisalu-api | Executados na criação do contentor da BD (docker compose) |
+| [Apresentacoes](Apresentacoes) | Slides de cada apresentação (`apresentacao-01`, ...) | Pasta de trabalho do grupo | – |
+
+Nota: o Gradle (Android) não aceita caminhos com caracteres como "º". Para compilar a app, copie a pasta para um caminho simples (por exemplo `C:\kisalu\`).
+
+As pastas de código são geradas por um script a partir dos repositórios de origem, por isso não se editam aqui.
+
+## Documentos e identidade visual
+
 | Artefacto | Localização |
 |---|---|
 | Proposta de projeto v2 (2.ª entrega) | [g05-proposta-v2.pdf](g05-proposta-v2.pdf) · [versão Markdown](../../Documentos/g05-proposta-v2.md) |
@@ -8,5 +23,5 @@
 | Identidade visual – brand book | [identidade-visual/01_Brand-Book](identidade-visual/01_Brand-Book) |
 | Logótipos (SVG e PNG) e ícone da app | [identidade-visual/02_Logos](identidade-visual/02_Logos) |
 | Ícones de serviços e de interface (SVG e PNG) | [identidade-visual/03_Icones](identidade-visual/03_Icones) |
-| Ficheiro de design (Figma) | [Kisalu Express — Mockups v2](https://www.figma.com/design/y6x5pO2mwQpoiF5ep18mSl/Kisalu-Express-%E2%80%94-Mockups--G05-?node-id=33-2) |
-| Repositório Git | <https://github.com/Eng-Infomatica-IADE/Kisalu-Express> |
+| Ficheiro de design (Figma) | [Kisalu Express — Mockups (G05)](https://www.figma.com/design/y6x5pO2mwQpoiF5ep18mSl/Kisalu-Express-%E2%80%94-Mockups--G05-?node-id=68-2) (frame v3.1) |
+| Repositório principal | <https://github.com/Eng-Infomatica-IADE/Kisalu-Express> |

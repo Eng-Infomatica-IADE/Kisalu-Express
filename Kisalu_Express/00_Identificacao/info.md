@@ -10,7 +10,7 @@
 | **6. Docente(s)** | Fabio Guilherme; João Pedro Duarte Barros Monge; Miguel Boavida; Nathan Campos; Pedro Rosa; Paula Neves; André da Cunha Torcato; Ricardo Manuel Freitas de Sousa |
 | **7. Estudantes participantes** | Álvaro da Silva; Adilson Yango; Milton Malavo (Grupo 05) |
 | **8. Palavras-chave** | Marketplace de serviços; economia informal; biscateiros; Angola; Flutter; API REST; MySQL; geolocalização; QR Code; código SMS; reputação verificável |
-| **9. Tecnologias utilizadas** | Flutter / Dart; Node.js / Express (REST); MySQL 8; JWT; autenticação por código SMS; Google Maps / geolocalização; leitura e geração de QR Code; notificações push; Figma; Google Forms; Git, GitHub e GitHub Projects |
+| **9. Tecnologias utilizadas** | Flutter / Dart; Node.js / Express 5 / TypeScript (REST); MySQL 8; Docker; JWT; autenticação por código SMS; Google Maps / geolocalização; leitura e geração de QR Code; notificações push; Figma; Google Forms; Git, GitHub e GitHub Projects |
 
 ## 10. Resumo curto
 
@@ -24,4 +24,8 @@ A Kisalu Express é uma aplicação móvel que liga clientes a prestadores de se
 | Adilson Yango | 20252312 | Licenciatura em Engenharia Informática | 2.º ano | 20252312@iade.pt |
 | Milton Malavo | 20252099 | Licenciatura em Engenharia Informática | 2.º ano | 20252099@iade.pt |
 
-**Repositório:** <https://github.com/Eng-Infomatica-IADE/Kisalu-Express>
+**Repositórios:**
+
+- Principal (documentação e entregas): <https://github.com/Eng-Infomatica-IADE/Kisalu-Express>
+- Front-end (Flutter): <https://github.com/Eng-Infomatica-IADE/kissalu-app>
+- Back-end (Node.js e SQL): <https://github.com/Eng-Infomatica-IADE/kisalu-api>

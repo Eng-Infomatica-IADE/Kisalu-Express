@@ -75,7 +75,9 @@ Todos os elementos participam em todas as frentes; cada um assume a responsabili
 
 ### i. Descrição da solução desenvolvida
 
-Sistema cliente-servidor em três camadas: app móvel Flutter (MVC), API REST em Node.js/Express (MVC) e base de dados MySQL. Estão concluídos a proposta de projeto (v2), a identidade visual, o Mobile App Style Guide, a pesquisa com utilizadores, a avaliação heurística, o modelo do domínio, a arquitetura provisória e o protótipo v2 em Figma, com dez ecrãs.
+Sistema cliente-servidor em três camadas: app móvel Flutter (MVC), API REST em Node.js/Express (MVC) e base de dados MySQL. Estão concluídos a proposta de projeto (v2), a identidade visual, o Mobile App Style Guide, a pesquisa com utilizadores, a avaliação heurística, o modelo do domínio, a arquitetura provisória e o protótipo em Figma. O protótipo v2 tinha dez ecrãs; a versão v3.1 tem 22, incluindo o lado do prestador (ecrãs 11 a 22), corrigidos após a avaliação heurística. A app Flutter consome a API REST (Node.js, Express 5 e TypeScript) sobre MySQL 8, com os scripts SQL separados em `create`, `populate` e `queries`.
+
+O código está em três repositórios: [Kisalu-Express](https://github.com/Eng-Infomatica-IADE/Kisalu-Express) (documentação e artefactos), [kissalu-app](https://github.com/Eng-Infomatica-IADE/kissalu-app) (front-end) e [kisalu-api](https://github.com/Eng-Infomatica-IADE/kisalu-api) (back-end e base de dados). Uma cópia do código está em `05_Artefactos`.
 
 ### ii. Funcionalidades principais
 
