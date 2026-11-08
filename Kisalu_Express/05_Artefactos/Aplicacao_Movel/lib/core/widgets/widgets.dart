@@ -1,0 +1,42 @@
+/// Componentes partilhados do design system Kisalu (prefixo K).
+/// Importar este ficheiro nas views: `import '.../core/widgets/widgets.dart';`
+library;
+
+export 'k_ao_voltar.dart';
+export 'k_avatar.dart';
+export 'k_back_button.dart';
+export 'k_bottom_nav_bar.dart';
+export 'k_card.dart';
+export 'k_cartao_profissional.dart';
+export 'k_category_tile.dart';
+export 'k_chip.dart';
+export 'k_chip_acao.dart';
+export 'k_empty_state.dart';
+export 'k_estado_builder.dart';
+export 'k_estado_vazio_centrado.dart';
+export 'k_estrelas.dart';
+export 'k_folha.dart';
+export 'k_folha_problema.dart';
+export 'k_grelha_categorias.dart';
+export 'k_icon_button.dart';
+export 'k_inclui_box.dart';
+export 'k_inline_alert.dart';
+export 'k_linha_chave_valor.dart';
+export 'k_linha_icone.dart';
+export 'k_mensagem_erro.dart';
+export 'k_pilula_acao.dart';
+export 'k_price_text.dart';
+export 'k_primary_button.dart';
+export 'k_rating_inline.dart';
+export 'k_search_field.dart';
+export 'k_secao_titulo.dart';
+export 'k_secondary_button.dart';
+export 'k_segmented_control.dart';
+export 'k_skeleton.dart';
+export 'k_snack.dart';
+export 'k_status_badge.dart';
+export 'k_step_progress.dart';
+export 'k_text_field.dart';
+export 'k_text_link.dart';
+export 'k_top_bar.dart';
+export 'kisalu_mark.dart';

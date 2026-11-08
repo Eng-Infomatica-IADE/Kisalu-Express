@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Cancela execuções antigas do mesmo branch/PR quando chega um push novo
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # ---- 1. Typecheck, build e testes (com MySQL) ----
+  test:
+    name: Typecheck, build e testes
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          TZ: Africa/Luanda
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot --silent"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=30
+
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: root
+      JWT_SECRET: ci-secret-apenas-para-testes
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      # Os três ficheiros SQL têm de correr pelo cliente mysql, pela ordem create → populate → queries
+      - name: Validar SQL (create.sql, populate.sql, queries.sql)
+        run: |
+          cat database/create.sql database/populate.sql database/queries.sql \
+            | sed 's/\bkisalu_express\b/kisalu_express_ci/g' \
+            | mysql -h 127.0.0.1 -P 3306 -uroot -proot
+          mysql -h 127.0.0.1 -P 3306 -uroot -proot -e "DROP DATABASE kisalu_express_ci"
+
+      - name: Build
+        run: npm run build
+
+      - name: Testes
+        run: npm test
+

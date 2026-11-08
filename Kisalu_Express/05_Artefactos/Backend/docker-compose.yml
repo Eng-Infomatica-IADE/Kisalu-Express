@@ -1,0 +1,64 @@
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:?Defina DB_PASSWORD no .env}
+      TZ: Africa/Luanda
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    ports:
+      # Porta no seu computador para abrir a base num cliente (ex.: DBeaver). 3307 para não chocar com outro MySQL.
+      - "${DB_HOST_PORT:-3307}:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+      # Corre só na primeira vez (volume vazio), por ordem alfabética:
+      # 01 cria as tabelas, triggers e vistas; 02 carrega os dados de exemplo
+      - ./database/create.sql:/docker-entrypoint-initdb.d/01-create.sql:ro
+      - ./database/populate.sql:/docker-entrypoint-initdb.d/02-populate.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  api:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # Dentro do Docker a API fala com o MySQL pelo nome do serviço
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: root
+      NODE_ENV: ${NODE_ENV:-development}
+      # Emails de desenvolvimento vão para o Mailpit. Para enviar emails a sério,
+      # defina SMTP_HOST, SMTP_USER, etc. no .env (ganham a este valor por defeito).
+      SMTP_HOST: ${SMTP_HOST:-mailpit}
+      SMTP_PORT: ${SMTP_HOST:+${SMTP_PORT:-587}}
+      SMTP_SECURE: ${SMTP_HOST:+${SMTP_SECURE:-false}}
+    ports:
+      - "${PORT:-3000}:${PORT:-3000}"
+    volumes:
+      - uploads:/app/uploads
+      # Documentos de identidade e fotos de reclamações (fora de /uploads, só para o admin)
+      - privado:/app/privado
+    depends_on:
+      db:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+
+  # Caixa de correio de teste: todos os emails enviados aparecem em http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:v1.27
+    restart: unless-stopped
+    environment:
+      MP_SMTP_BIND_ADDR: 0.0.0.0:587
+    ports:
+      - "8025:8025"
+
+volumes:
+  db-data:
+  uploads:
+  privado:
