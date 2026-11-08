@@ -17,6 +17,8 @@ Os ecrãs 01–10 são da **v2** (a v1 fica no Figma apenas para comparação). 
 
 ## Índice
 
+> As linhas 23 a 30 foram acrescentadas à cópia depois do teste de QA ponta a ponta; as capturas em `ecras/` são da v3 (geradas a partir da app Flutter) e têm ~780 px de largura (originais de 3120 × 6752 px em `../02_Imagens`).
+
 | # | Tela | Rota | Barra inferior | Ficheiro | Imagem |
 |---|------|------|----------------|----------|--------|
 | 01 | Login / Registo | `/login` | não | `features/autenticacao/views/login_view.dart` | `01-login.png` |
@@ -41,6 +43,14 @@ Os ecrãs 01–10 são da **v2** (a v1 fica no Figma apenas para comparação). 
 | 20 | Perfil | `/perfil` | Perfil ativo | `features/perfil/views/perfil_view.dart` | `20-perfil.png` |
 | 21 | Todos os serviços | `/categorias` | não | `features/categorias/views/todos_servicos_view.dart` | `21-todos-servicos.png` |
 | 22 | Mapa "Perto de si" | `/mapa` | não | `features/mapa/views/mapa_view.dart` | `22-mapa.png` |
+| 23 | Notificações | `/notificacoes` | não | `features/notificacoes/views/notificacoes_view.dart` | `23-notificacoes.png` |
+| 24 | Ajuda | `/ajuda` | não | `features/ajuda/views/ajuda_view.dart` | `24-ajuda.png` |
+| 25 | Detalhe do trabalho (profissional) | `/trabalhos/:id` | não | `features/trabalho/views/trabalho_detalhe_view.dart` | `25-trabalho-detalhe.png` |
+| 26 | Pedido depois de aceitar a proposta | `/pedidos/:id` | Pedidos ativo | mesmo ficheiro da 04 | `26-pedido-aceite.png` |
+| 27 | Editar pedido | `/novo-pedido?editar=:id` | não | mesmo ficheiro da 10 | `27-editar-pedido.png` |
+| 28 | Reportar problema (folha) | sobre o pedido | — | `features/pedidos/` | `28-reportar-problema.png` |
+| 29 | Comprovativo (folha do histórico) | sobre `/pedidos` | — | `features/pedidos/widgets/historico_comprovativo_folha.dart` | `29-comprovativo.png` |
+| 30 | Recusar proposta (diálogo) | sobre `/pedidos/:id` | — | `features/pedidos/widgets/pedido_detalhe_proposta_cartao.dart` | `30-recusar-proposta.png` |
 
 **Perfil ativo.** A sessão tem um perfil ativo (cliente ou profissional) exposto por `KisaluRepository.perfilAtivo`
 e alterado por `mudarPerfil` (avisa por `alteracoes`). Decide o separador **Início** (02 ou 14), o separador **QR**
@@ -427,6 +437,8 @@ Não estão no Figma. Vieram do relatório de QA e dos testes no browser com a A
 |---|---|
 | 02, 07, 14, 18 | Ao voltar ao separador (ou a uma rota tapada) a lista volta a ler, sem esqueletos. Puxar para baixo também atualiza (`RefreshIndicator` laranja). O 04 e o 05/16 também releem ao voltar. |
 | 02, 14 | O sino abre as Notificações; o ponto vermelho segue o número de notificações por ler. |
+| 03 | Bloco **"Avaliações em números"** entre "Trabalhos feitos" e "Avaliações recentes" (estatística, Matemática Discreta; `kisalu-api/docs/MATEMATICA.md`). Cartão com "4,8 ± 0,6" (Sora 22) e a legenda "média ± desvio padrão"; "Entre 4,7 e 4,9 com 95% de confiança"; cinco barras horizontais de 5 a 1 estrelas (número + estrela ouro, barra ouro sobre areia, contagem a negrito ao lado; o leitor de ecrã ouve "5 estrelas: 108 avaliações"); "n = 126 avaliações" em legenda. Sem avaliações o bloco não aparece; com uma só, não há desvio nem intervalo. Se a estatística falhar, o resto do perfil mostra-se na mesma. |
+| 04 | Em cada cartão de proposta, por baixo do nome e das estrelas, uma linha pequena **"Chega a tempo em ~85% dos casos"** (simulação de Monte Carlo com 10 000 viagens; percentagem arredondada a 5 %). A partir de 80 %: verde de sucesso com ícone de relógio; abaixo: cor de aviso com ícone de aviso (nunca só a cor). Não aparece em propostas "na hora pedida" nem sem GPS. A ordenação "Chegada" desempata pela mediana simulada da chegada. |
 | 04 | Cada proposta tem **"Recusar"** (botão secundário) por baixo de "Ver e aceitar", com confirmação "Recusar esta proposta?" · "A proposta do Rui sai da lista e ele é avisado. Não é possível desfazer." · "Manter" / "Recusar". Depois: "Proposta recusada." (a API não tem desfazer). |
 | 04 | Com proposta aceite já não há "Ver e aceitar": aparece "Proposta aceite" com o cartão do profissional (selo **"ACEITE"** com visto, valor fechado, chegada, "Inclui"), **"Ver código QR"** (abre o QR desse pedido, `/qr?pedido=:id`), **"Conversa"** e, nos primeiros 5 minutos, "Desfazer aceitação (até 5 min)". O menu ⋯ deixa de ter "Editar pedido". |
 | 04 → 10 | "Editar pedido" abre o formulário já preenchido (`/novo-pedido?editar=:id`), com o título "Editar pedido" e o botão "Guardar alterações"; grava com PATCH (não cria outro pedido) e volta ao 04 com "Pedido atualizado." |

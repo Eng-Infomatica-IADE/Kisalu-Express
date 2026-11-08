@@ -67,7 +67,23 @@ Para o profissional, o nome do cliente aparece sempre abreviado: `nomeCurto("Mar
 { "id": 1, "proposta_id": 1, "estado": "enviada", "valor_total": 12500,
   "componentes": { "mao_de_obra": 8000, "material": 3500, "deslocacao": 1000 },
   "material_detalhe": "sifão e vedante", "tempo_chegada_min": 40, "na_hora_pedida": false,
-  "chegada_prevista": "ISO", "profissional": ProfissionalResumo }
+  "chegada_prevista": "ISO", "estimativa_chegada": EstimativaChegada|null, "profissional": ProfissionalResumo }
+```
+
+`estimativa_chegada` só vem preenchida para o cliente do pedido (`GET /pedidos/:id`, `GET /pedidos/:id/propostas`) e quando há distância e minutos prometidos; nos outros casos é `null`. Ver secção 6, "Matemática".
+
+**EstimativaChegada** (Monte Carlo, docs/MATEMATICA.md)
+
+```json
+{ "simulacoes": 10000, "media_min": 19, "p50_min": 16.6, "p90_min": 32.8, "prob_cumprir": 0.98 }
+```
+
+**EstatisticasAvaliacoes** (`GET /profissionais/:id/estatisticas`)
+
+```json
+{ "n": 126, "media": 4.79, "mediana": 5, "moda": 5, "desvio_padrao": 0.6, "variancia": 0.357,
+  "ic95": { "inferior": 4.69, "superior": 4.9, "metodo": "z" }|null,
+  "distribuicao": { "1": 1, "2": 1, "3": 3, "4": 13, "5": 108 }, "media_bayesiana": 4.79 }
 ```
 
 `chegada_prevista` calcula-se assim:
@@ -156,6 +172,7 @@ Os caminhos são relativos a `/api`. Os endpoints com rota literal (`/profission
 | `categorias` | `GET /categorias` → `[{id, chave, nome, plural, em_destaque, icone, profissionais_disponiveis}]` (13) | não |
 | `profissionaisPertoDeSi` | `GET /profissionais/perto?limit=20` → `[ProfissionalResumo]` | sim |
 | `profissional(id)` | `GET /profissionais/:id` → ProfissionalDetalhe | não |
+| `estatisticasAvaliacoes(id)` | `GET /profissionais/:id/estatisticas` → EstatisticasAvaliacoes (404 → `null`) | não |
 | `pedido(id)` | `GET /pedidos/:id` → PedidoJSON | sim |
 | `cancelarPedido` | `POST /pedidos/:id/cancelar` | sim |
 | `aceitarProposta` | `POST /propostas/:id/aceitar`, depois `GET /pedidos/:pedidoId` | sim |
@@ -265,7 +282,9 @@ Ordem: `create.sql` → `populate.sql` (→ `queries.sql`). O `docker-compose` m
 | `confirmacao_servico` | novas colunas `tentativas`, `expira_em` e `qr_aberto_em` (última vez que o cliente abriu o QR; desempata códigos iguais em `POST /pedidos/confirmar`) |
 | `etiqueta` | nova coluna `chave`; as etiquetas passam a ser as da app: pontual, preco_justo, simpatico, trabalho_limpo, rapido |
 | `vw_comprovativo` | passa a mostrar `profissional_id` e `cliente_id` |
-| `trg_avaliacao_media` | passa a ser incremental, para não apagar a média de exemplo |
+| `profissional` | novas colunas `avaliacoes_1` … `avaliacoes_5`: distribuição das avaliações por estrelas (inclui o histórico dos dados de exemplo) |
+| `trg_avaliacao_media` | soma 1 à coluna `avaliacoes_<estrelas>` e recalcula `total_avaliacoes` e `media_avaliacao` a partir da distribuição, para não apagar o histórico de exemplo |
+| `vw_media_categoria` | vista nova: média global das avaliações por categoria (prior da média bayesiana) |
 
 ### Dados de exemplo, alinhados com o mock da app
 
@@ -413,3 +432,26 @@ Os campos antigos (`cliente.telemovel`, `morada.ponto_referencia`) mantêm-se. O
 ```json
 [{ "id": 1, "tema": "QR Code", "pergunta": "Quando devo mostrar o QR Code?", "resposta": "…" }]
 ```
+
+## 6A. Matemática: estatística das avaliações e estimativa de chegada
+
+Requisito de Matemática Discreta (método numérico + estatística). Fórmulas, parâmetros e exemplos em `kisalu-api/docs/MATEMATICA.md`.
+
+### `GET /profissionais/:id/estatisticas` (sem token)
+
+EstatisticasAvaliacoes (secção 1), calculada a partir da distribuição 1–5 estrelas do perfil: média, mediana, moda, desvio padrão e variância amostrais (divide por n − 1), intervalo de confiança a 95 % da média (`metodo: "t"` com t de Student e n − 1 graus de liberdade se n < 30; `"z"` com 1,96 se n ≥ 30; limites cortados a [1, 5]) e `media_bayesiana` = (10 · C + Σx) / (10 + n), com C a média da categoria principal. Sem avaliações, os valores vêm a `null` (`n: 0`); com uma só, `desvio_padrao`, `variancia` e `ic95` vêm a `null`. Profissional inexistente → 404.
+
+A pesquisa `GET /profissionais?ordenar=avaliacao` ordena por verificado e depois pela média bayesiana (cada linha traz `media_bayesiana`).
+
+### `GET /propostas/:id/estimativa-chegada` (token)
+
+Só o cliente do pedido ou o profissional da proposta (ou o admin); os outros recebem 404.
+
+```json
+{ "proposta_id": 1, "distancia_km": 1.2, "tempo_prometido_min": 40,
+  "simulacoes": 10000, "media_min": 19, "p50_min": 16.6, "p90_min": 32.8, "prob_cumprir": 0.98 }
+```
+
+10 000 simulações de tempo = preparação U(5, 15) + distância / velocidade (lognormal, mediana 18 km/h, σ = 0,5) + atraso U(5, 25) com probabilidade 0,3. `prob_cumprir` é a fração (0 a 1) que chega dentro de `tempo_prometido_min`. A semente vem do id da proposta: o resultado é sempre o mesmo e igual ao `estimativa_chegada` da PropostaJSON. Proposta "na hora pedida" → 400 `SEM_TEMPO_PROMETIDO`; sem GPS do profissional ou da morada → 400 `SEM_DISTANCIA`.
+
+Na app: ecrã 03, bloco "Avaliações em números" (`estatisticasAvaliacoes`); ecrã 04, linha "Chega a tempo em ~N% dos casos" no cartão da proposta (N = `prob_cumprir` arredondado a 5 %), e a ordenação "Chegada" desempata por `p50_min`.
