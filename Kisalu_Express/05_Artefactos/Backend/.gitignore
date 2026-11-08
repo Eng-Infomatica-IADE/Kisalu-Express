@@ -5,6 +5,8 @@ dist
 *.env
 .env.*
 !.env.example
+# O dados.env fica no repositório (privado) por decisão do grupo
+!dados.env
 uploads/*
 !uploads/.gitkeep
 # Documentos de identidade e fotos de reclamações (nunca públicos)
