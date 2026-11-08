@@ -351,7 +351,7 @@ A base `kisalu_express` tem **25 tabelas** em InnoDB, **5 triggers** e **3 vista
 
 ![Modelo entidade-relação](img/v3/modelo-er.png)
 
-*Figura 6 – Modelo ER (notação pé-de-galinha), com as chaves de cada tabela.*
+*Figura 6 – Modelo ER da base kisalu_express (notação pé-de-galinha), com as chaves de cada tabela.*
 
 ## 13. Guia de Dados (esboço)
 
